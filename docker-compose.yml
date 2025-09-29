@@ -1,0 +1,44 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: organizationsapi-php
+    volumes:
+      - ./:/var/www
+    networks:
+      - organizationsapi
+    expose:
+      - "9000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: organizationsapi-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www
+      - ./docker/swagger:/var/www/public/swagger
+    depends_on:
+      - php
+    networks:
+      - organizationsapi
+
+  db:
+    image: mysql:8.0
+    container_name: organizationsapi-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: organizationsapi
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    networks:
+      - organizationsapi
+
+networks:
+  organizationsapi:
+    driver: bridge
