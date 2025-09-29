@@ -1,66 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Organizations API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API для работы с организациями и зданиями на Laravel.  
+Все приложение завернуто в Docker, чтобы его можно было развернуть на любой машине.
 
-## About Laravel
+## Требования
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Docker >= 24.0  
+- Docker Compose >= 2.0  
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Быстрый старт
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Склонировать репозиторий:
 
-## Learning Laravel
+```bash
+git clone https://github.com/AlexKoss25/OrganizationsAPI.git
+cd OrganizationsAPI
+Создать .env на основе примера:
+cp .env.example .env
+В .env можно настроить подключение к БД, порт и API ключ.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Собрать и запустить контейнеры:
+docker-compose up -d --build
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Установить зависимости Laravel:
+docker-compose exec app composer install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Сгенерировать ключ приложения:
+docker-compose exec app php artisan key:generate
 
-## Laravel Sponsors
+Выполнить миграции и сиды:
+docker-compose exec app php artisan migrate --seed
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+API будет доступен по адресу:
+http://localhost:8080/api
 
-### Premium Partners
+Swagger документация доступна по:
+http://localhost:8080/swagger/
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Использование API
+Все эндпоинты требуют заголовок X-API-KEY с вашим ключом (по умолчанию super-secret-key).
 
-## Contributing
+Пример запроса через curl:
+curl -X GET "http://localhost:8080/api/organizations/radius?latitude=55.751&longitude=37.618&radius=1&per_page=2" \
+-H "X-API-KEY: super-secret-key"
+Поддерживаемые эндпоинты
+/organizations/building/{buildingId} — список организаций в конкретном здании
+/organizations/activity/{activityId} — список организаций по виду деятельности
+/organizations/radius — список организаций в радиусе
+/organizations/bybbox — список организаций в прямоугольной области (bbox)
+/organizations/{id} — информация об организации по ID
+/organizations/search-by-activity — поиск организаций по виду деятельности с вложенностью
+/organizations/search — поиск организаций по названию
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Все эндпоинты поддерживают параметр per_page для ограничения количества результатов.
 
-## Code of Conduct
+Структура Docker
+Dockerfile — образ PHP 8.2 + Laravel + расширения
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+docker-compose.yml — сервисы:
+app — PHP-FPM + Laravel
+nginx — веб-сервер
+db — MySQL
+phpmyadmin — интерфейс для БД (опционально)
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+После запуска docker-compose up -d --build все сервисы будут работать сразу.
